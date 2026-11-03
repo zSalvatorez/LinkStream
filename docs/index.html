@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Assistir · LinkStream</title>
+<style>
+  :root { --fundo:#0b0b0e; --cartao:#17171d; --barra:rgba(14,14,18,.86); --texto:#f2f2f5; --fraco:#a5a7b4; --ativo:#7c5cff; --borda:rgba(255,255,255,.14); --vermelho:#e5484d; }
+  * { box-sizing:border-box; }
+  html, body { margin:0; height:100%; background:var(--fundo); color:var(--texto); font:14px/1.4 "Segoe UI", system-ui, sans-serif; overflow:hidden; }
+  #topo { position:fixed; top:0; left:0; right:0; height:44px; display:flex; align-items:center; gap:10px; padding:0 12px; background:var(--barra); border-bottom:1px solid var(--borda); z-index:5; }
+  #topo b { font-size:15px; }
+  #topo .fraco { color:var(--fraco); font-size:12px; flex:1; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+  #grade { position:fixed; top:44px; left:0; right:0; bottom:0; display:grid; gap:4px; padding:4px; }
+  .tela { position:relative; background:#000; border-radius:8px; overflow:hidden; min-width:0; min-height:0; }
+  .tela iframe { position:absolute; inset:0; width:100%; height:100%; border:0; background:#000; }
+  .tela .barra { position:absolute; left:8px; right:8px; top:8px; display:flex; align-items:center; gap:6px; padding:6px 8px; border-radius:10px;
+                 background:var(--barra); border:1px solid var(--borda); opacity:0; transition:opacity .2s; z-index:2; }
+  .tela:hover .barra, .tela.sempre .barra, .tela:fullscreen .barra.ativa { opacity:1; }
+  .nome { font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:30%; }
+  .estado { color:var(--fraco); font-size:12px; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  button { font:inherit; color:var(--texto); background:transparent; border:1px solid var(--borda); border-radius:8px; padding:4px 9px; cursor:pointer; min-width:34px; min-height:30px; }
+  button:hover { background:rgba(255,255,255,.1); }
+  button.mudo { color:#ffb020; border-color:#ffb020; }
+  button.fechar:hover { background:var(--vermelho); border-color:var(--vermelho); }
+  input[type=range] { width:90px; accent-color:var(--ativo); }
+  #vazio { position:fixed; inset:44px 0 0 0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; text-align:center; padding:24px; color:var(--fraco); }
+  #vazio input { width:min(560px, 90vw); padding:10px 12px; border-radius:10px; border:1px solid var(--borda); background:var(--cartao); color:var(--texto); font:inherit; }
+  #aviso { position:fixed; inset:0; display:none; align-items:center; justify-content:center; flex-direction:column; gap:14px; text-align:center; padding:24px; background:var(--fundo); z-index:10; font-size:17px; }
+  #aviso button { font-size:15px; padding:8px 16px; }
+  @media (max-width:600px) { .nome { max-width:40%; } input[type=range] { display:none; } }
+</style>
+</head>
+<body>
+<div id="topo"><b>LinkStream</b><span class="fraco" id="resumo">Abra o link de cada amigo: as telas aparecem aqui, lado a lado.</span><button id="add" title="Colar o link de um amigo">＋ Link</button></div>
+<div id="grade"></div>
+<div id="vazio">
+  <div>Abra o link que um amigo mandou, ou cole ele aqui:</div>
+  <input id="colar" placeholder="https://....trycloudflare.com/...">
+</div>
+<div id="aviso"><div id="avisoTexto"></div><button id="avisoBotao">Assistir aqui mesmo</button></div>
+<script>
+// Página de várias telas do LinkStream. O link que o LinkStream copia aponta para cá, com o endereço do amigo depois
+// do "#" (ele nunca vai para o servidor desta página). Se já tem uma aba desta página aberta, a tela vai para ela e
+// esta aba se fecha; senão, esta aba vira a de várias telas. Cada tela é o próprio player do amigo, dentro de um quadro.
+const grade = document.getElementById("grade"), vazio = document.getElementById("vazio");
+const canal = "BroadcastChannel" in window ? new BroadcastChannel("linkstream-telas") : null;
+const LISTA = "linkstream-telas";
+let telas = [];   // { url, nome, el, iframe, volume, mudo }
+
+function lerHash() {
+  const p = new URLSearchParams(location.hash.slice(1));
+  const url = p.get("v");
+  if (!url || !/^https:\/\/[^\/]+\/[\w-]+$/.test(url)) return null;
+  return { url, nome: (p.get("n") || "").slice(0, 40) || new URL(url).hostname.split(".")[0] };
+}
+
+function guardar() { try { sessionStorage.setItem(LISTA, JSON.stringify(telas.map(t => ({ url: t.url, nome: t.nome })))); } catch (e) {} }
+
+function organizar() {
+  const n = telas.length;
+  vazio.style.display = n ? "none" : "flex";
+  // Colunas pela proporção da janela: telas largas (16:9) usam melhor o espaço
+  let melhor = 1, area = 0;
+  const W = grade.clientWidth, H = grade.clientHeight;
+  for (let c = 1; c <= n; c++) {
+    const l = Math.ceil(n / c), w = W / c, h = H / l, a = Math.min(w, h * 16 / 9) * Math.min(h, w * 9 / 16);
+    if (a > area) { area = a; melhor = c; }
+  }
+  grade.style.gridTemplateColumns = "repeat(" + melhor + ", 1fr)";
+  grade.style.gridTemplateRows = "repeat(" + Math.max(1, Math.ceil(n / melhor)) + ", 1fr)";
+  document.getElementById("resumo").textContent = n ? n + (n === 1 ? " tela" : " telas") + " · passe o mouse numa tela para os controles" : "Abra o link de cada amigo: as telas aparecem aqui, lado a lado.";
+  document.title = (n > 1 ? "(" + n + ") " : "") + "Assistir · LinkStream";
+}
+window.addEventListener("resize", organizar);
+if ("ResizeObserver" in window) new ResizeObserver(() => organizar()).observe(grade);
+
+function som(t) {
+  try { t.iframe.contentWindow.postMessage({ linkstream: 1, tipo: "som", volume: t.volume, mudo: t.mudo }, "*"); } catch (e) {}
+  t.btnSom.textContent = t.mudo || t.volume == 0 ? "🔇" : t.volume < 50 ? "🔉" : "🔊";
+  t.btnSom.classList.toggle("mudo", t.mudo || t.volume == 0);
+}
+
+function botao(texto, titulo, acao, classe) {
+  const b = document.createElement("button"); b.textContent = texto; b.title = titulo; if (classe) b.className = classe;
+  b.onclick = e => { e.stopPropagation(); acao(); }; return b;
+}
+
+function adicionar(s) {
+  if (telas.some(t => t.url === s.url)) return;
+  const t = { url: s.url, nome: s.nome, volume: 80, mudo: true };
+  t.el = document.createElement("div"); t.el.className = "tela";
+  t.iframe = document.createElement("iframe");
+  t.iframe.src = s.url + "?embed=1";
+  t.iframe.allow = "autoplay; fullscreen; picture-in-picture";
+  const barra = document.createElement("div"); barra.className = "barra";
+  const nome = document.createElement("span"); nome.className = "nome"; nome.textContent = s.nome;
+  t.estado = document.createElement("span"); t.estado.className = "estado"; t.estado.textContent = "conectando...";
+  t.btnSom = botao("🔇", "Ligar/desligar o som", () => { t.mudo = !t.mudo; if (!t.mudo && t.volume == 0) { t.volume = 50; vol.value = 50; } som(t); }, "mudo");
+  const vol = document.createElement("input"); vol.type = "range"; vol.min = 0; vol.max = 100; vol.value = t.volume; vol.title = "Volume";
+  vol.oninput = () => { t.volume = +vol.value; t.mudo = t.volume == 0; som(t); };
+  vol.onclick = e => e.stopPropagation();
+  const cheia = botao("⛶", "Tela cheia", () => {
+    if (document.fullscreenElement) document.exitFullscreen();
+    else t.el.requestFullscreen().catch(() => {});
+  });
+  const fora = botao("↗", "Abrir em outra aba (sai daqui)", () => { window.open(t.url, "_blank"); remover(t); });
+  const fechar = botao("✕", "Tirar esta tela", () => remover(t), "fechar");
+  barra.append(nome, t.estado, t.btnSom, vol, cheia, fora, fechar);
+  t.el.append(t.iframe, barra);
+  grade.appendChild(t.el);
+  telas.push(t);
+  guardar(); organizar();
+}
+
+function remover(t) { telas = telas.filter(x => x !== t); t.el.remove(); guardar(); organizar(); }
+
+// Estado que cada player manda (resolução, fps, avisos de conexão)
+window.addEventListener("message", e => {
+  const d = e.data; if (!d || d.linkstream !== 1 || d.tipo !== "estado") return;
+  const t = telas.find(x => x.iframe.contentWindow === e.source); if (!t) return;
+  t.estado.textContent = d.aviso || d.info || "";
+});
+
+// ---- Uma aba só: quem abre um link novo entrega para a aba que já está aberta ----
+function virarPrincipal(novo) {
+  try { (JSON.parse(sessionStorage.getItem(LISTA) || "[]")).forEach(adicionar); } catch (e) {}
+  if (novo) adicionar(novo);
+  history.replaceState(null, "", location.pathname);
+  if (canal) canal.onmessage = e => {
+    const d = e.data || {};
+    if (d.tipo === "quem") canal.postMessage({ tipo: "aqui", id: d.id });
+    if (d.tipo === "adicionar") { adicionar(d.tela); document.title = "+1 · " + document.title; setTimeout(organizar, 1500); }
+  };
+  organizar();
+}
+
+function aviso(texto, botaoTexto, acao) {
+  const a = document.getElementById("aviso"); a.style.display = "flex";
+  document.getElementById("avisoTexto").textContent = texto;
+  const b = document.getElementById("avisoBotao"); b.textContent = botaoTexto; b.onclick = () => { a.style.display = "none"; acao(); };
+}
+
+(function comecar() {
+  const novo = lerHash();
+  if (!canal || !novo) return virarPrincipal(novo);
+  const id = Math.random().toString(36).slice(2);
+  let achou = false;
+  canal.onmessage = e => {
+    const d = e.data || {};
+    if (d.tipo !== "aqui" || d.id !== id || achou) return;
+    achou = true;
+    canal.postMessage({ tipo: "adicionar", tela: novo });
+    // Aba aberta por um link pode se fechar sozinha; se o navegador não deixar, avisa
+    aviso("A tela de " + novo.nome + " foi para a aba do LinkStream que já estava aberta.", "Assistir aqui mesmo", () => { canal.onmessage = null; virarPrincipal(novo); });
+    setTimeout(() => window.close(), 400);
+  };
+  canal.postMessage({ tipo: "quem", id });
+  setTimeout(() => { if (!achou) virarPrincipal(novo); }, 500);
+})();
+
+// Colar um link à mão (o link do player direto ou o link desta página)
+function colar(texto) {
+  texto = (texto || "").trim();
+  let s = null;
+  try {
+    if (texto.includes("#v=")) { const p = new URLSearchParams(texto.split("#")[1]); s = { url: p.get("v"), nome: p.get("n") || "" }; }
+    else s = { url: texto.replace(/[?#].*$/, ""), nome: "" };
+    if (!/^https:\/\/[^\/]+\/[\w-]+$/.test(s.url)) return false;
+    s.nome = s.nome || new URL(s.url).hostname.split(".")[0];
+  } catch (e) { return false; }
+  adicionar(s); return true;
+}
+const campo = document.getElementById("colar");
+campo.addEventListener("keydown", e => { if (e.key === "Enter" && colar(campo.value)) campo.value = ""; });
+campo.addEventListener("paste", () => setTimeout(() => { if (colar(campo.value)) campo.value = ""; }, 0));
+document.getElementById("add").onclick = () => { const t = prompt("Cole o link do amigo:"); if (t && !colar(t)) alert("Esse link não parece ser de uma transmissão do LinkStream."); };
+</script>
+</body>
+</html>
