@@ -16,6 +16,27 @@ Programa para quem joga no PC, tudo numa janela só:
 
 ### Novidades desta versão
 
+- **Procurar atualizações** (⚙ Ajustes → Geral): a partir desta versão, o LinkStream mesmo procura, baixa e instala a
+  versão nova, e abre de novo sozinho. Seus ajustes, cenas e vídeos continuam.
+
+- **Várias telas na mesma aba**: cada link de amigo que você abre entra na mesma página, lado a lado (2, 3, 5 ou mais).
+  Cada tela tem som e volume próprios, tela cheia e "abrir em outra aba".
+- **Link mais leve**: sem jogo HDR (ou em monitor sem HDR), a conversão do link ficou cerca de 30% mais leve para a
+  placa de vídeo.
+
+- **Qualidade do link** em ⚙ Ajustes: **Full HD** (padrão), **Nativa** (a resolução do seu monitor, mais pesada) ou
+  **720p** (leve, para PC mais fraco). Em monitor ultrawide o link agora usa a tela inteira (ex.: 2580x1080 em vez de 1920x804).
+- **Link mais leve no jogo**: fica em no máximo 60 fps e cai sozinho para 30 se a placa não der conta.
+- **Câmera com posições** (botão 📷 Câmera): em webcam que se mexe, salve posições com nome. Cada uma guarda o ângulo, o zoom e a
+  imagem (brilho, exposição etc.), e dá para escolher a resolução e os quadros da câmera. Troque pela janela, por `Ctrl+Alt+P` ou por **Select + RB** no controle.
+  Tem **modo privacidade** (a câmera vira para baixo e sai do vídeo) e a câmera volta como estava quando você abre o
+  LinkStream de novo, mesmo depois de desligar o PC. Webcam comum, que não se mexe, aparece só com os ajustes de imagem.
+- **Ajustes mais organizados**: separados por categoria, em colunas, e a janela agora muda de tamanho (cabe em qualquer tela).
+- **Quadros por segundo**: agora só 30 ou 60. Quem usava 120 volta para 60 sozinho.
+- O ícone do OBS não aparece mais perto do relógio.
+- **Uma permissão só**: o instalador pede a permissão do Windows uma vez, logo ao abrir, e já libera tudo
+  (antes ainda vinham mais duas perguntas "Permitir acesso?" do firewall quando o link ligava).
+
 - **Nome novo:** a Central agora se chama **LinkStream**. Quem já tem a Central é só rodar o instalador novo: ele traz
   os ajustes, as cenas e as chaves para o LinkStream e tira a Central antiga sozinho (os vídeos salvos ficam onde estavam).
 
@@ -40,19 +61,19 @@ Programa para quem joga no PC, tudo numa janela só:
 1. Baixe o **LinkStreamSetup.exe** (em **Releases**, aqui ao lado). Tem uns 180 MB.
 2. Abra. Como o programa não tem assinatura digital, o Windows mostra **"O Windows protegeu o computador"**:
    clique em **Mais informações → Executar assim mesmo**.
-3. Clique em **Instalar**. Ele instala em `AppData\Local\Programs\LinkStream`, cria atalho no menu Iniciar
-   (e na área de trabalho, se quiser) e aparece em "Aplicativos instalados" para desinstalar.
-4. No fim, o Windows pede **uma permissão** (tela com fundo escuro). É para o overlay de estatísticas:
+3. Logo em seguida o Windows pede **uma permissão só** (tela com fundo escuro): clique em **Sim**. É a única vez; com
+   ela o instalador deixa tudo pronto de uma vez, sem perguntar mais nada:
+   - instala o programa (com o OBS próprio, o servidor do link, o FFmpeg etc.);
    - instala o driver **PawnIO** (gratuito, código aberto, assinado), que lê a temperatura do processador;
-   - cria uma tarefa do Windows que abre o leitor da temperatura sem perguntar de novo;
-   - libera o **FPS** (coloca seu usuário no grupo "Usuários de log de desempenho").
-
-   Se recusar, tudo funciona, menos o FPS e a temperatura do processador no overlay. Para liberar depois, rode o instalador de novo.
+   - libera o **FPS** do overlay (coloca seu usuário no grupo "Usuários de log de desempenho");
+   - libera o **link** no Firewall do Windows (ele não pergunta "Permitir acesso?" quando você liga o link).
+4. Clique em **Instalar**. Ele instala em `AppData\Local\Programs\LinkStream`, cria atalho no menu Iniciar
+   (e na área de trabalho, se quiser) e aparece em "Aplicativos instalados" para desinstalar.
 5. Para o FPS aparecer, **saia e entre de novo no Windows** (ou reinicie) uma vez.
 
 Tudo o que o programa precisa vai junto (OBS próprio, FFmpeg, servidor do link, runtime do Visual C++): não precisa
-instalar mais nada, e o seu OBS normal (se tiver) não é mexido. Atualizar = rodar o instalador novo por cima (os seus
-ajustes e cenas ficam).
+instalar mais nada, e o seu OBS normal (se tiver) não é mexido. Para atualizar: ⚙ Ajustes → **Procurar atualizações**
+(ou rodar o instalador novo por cima). Os seus ajustes e cenas ficam.
 
 ## Primeiros passos
 
@@ -60,9 +81,9 @@ ajustes e cenas ficam).
   no ícone dele na barra de tarefas / menu Iniciar). Para não abrir com o Windows: ⚙ Ajustes → "Iniciar com o Windows".
 - Ele **detecta o jogo sozinho**. Em **Vídeo** (à direita) dá para escolher um jogo, uma janela ou a área de trabalho.
 - **Atalhos** (funcionam dentro do jogo): `Ctrl+Alt+R` gravar · `Ctrl+Alt+S` salvar replay · `Ctrl+Alt+Y` YouTube ·
-  `Ctrl+Alt+L` link · `Ctrl+Alt+O` overlay. Dá para trocar em ⚙ Ajustes (e o do overlay na aba Estatísticas).
+  `Ctrl+Alt+L` link · `Ctrl+Alt+O` overlay · `Ctrl+Alt+P` próxima posição da câmera. Dá para trocar em ⚙ Ajustes (e o do overlay na aba Estatísticas).
 - **Controle** (Xbox ou PlayStation): segure **Select/View/Share** e aperte **Y** gravar · **B** replay · **X** print ·
-  **A** live · **LB/L1** overlay.
+  **A** live · **LB/L1** overlay · **RB/R1** próxima posição da câmera.
 - Os vídeos ficam em `Vídeos\LinkStream` (botão **Abrir vídeos**).
 - O manual completo vem junto: `COMO-USAR.md`, na pasta do programa.
 
@@ -115,8 +136,10 @@ vídeo/live. Liga e desliga com `Ctrl+Alt+O` ou **Select + LB** no controle. Nã
 
 ## Link para os amigos
 
-Clique em **Ligar link** e mande o endereço: abre no navegador do PC ou do celular, sem instalar nada, quase sem atraso.
-Na primeira vez, o Windows pergunta se o LinkStream pode receber conexões: clique em **Permitir**. O endereço muda a cada
+Clique em **Ligar link** e mande o endereço (botão **Copiar link**): abre no navegador do PC ou do celular, sem instalar
+nada, quase sem atraso. Quem abre o link de mais de um amigo vê todas as telas na mesma aba, lado a lado; passe o mouse
+numa tela para o som, o volume, a tela cheia ou para abrir em outra aba.
+O endereço muda a cada
 vez que o LinkStream abre, e só funciona enquanto o link está ligado.
 
 ## O que testar (ajuda muito!)
