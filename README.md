@@ -136,7 +136,7 @@ vídeo/live. Liga e desliga com `Ctrl+Alt+O` ou **Select + LB** no controle. Nã
 
 ## Link para os amigos
 
-Clique em **Ligar link** e mande o endereço (botão **Copiar link**): abre no navegador do PC ou do celular, sem instalar
+Clique em **Ligar link**: o endereço já fica copiado, é só colar para os amigos (o botão **Copiar link** copia de novo). Abre no navegador do PC ou do celular, sem instalar
 nada, quase sem atraso. Quem abre o link de mais de um amigo vê todas as telas na mesma aba, lado a lado; passe o mouse
 numa tela para o som, o volume, a tela cheia ou para abrir em outra aba.
 O endereço muda a cada
