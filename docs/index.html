@@ -76,11 +76,12 @@ function organizar() {
       destaque.el.style.gridColumn = "1"; destaque.el.style.gridRow = "1 / span " + m;
       outras.forEach((t, i) => { t.el.style.gridColumn = "2"; t.el.style.gridRow = String(i + 1); });
     } else {
-      const baixo = Math.round(Math.min(H * 0.28, Math.max(H * 0.16, (W / m) * 9 / 16)));
-      grade.style.gridTemplateColumns = "repeat(" + m + ", 1fr)";
-      grade.style.gridTemplateRows = "1fr " + baixo + "px";
-      destaque.el.style.gridRow = "1"; destaque.el.style.gridColumn = "1 / span " + m;
-      outras.forEach((t, i) => { t.el.style.gridRow = "2"; t.el.style.gridColumn = String(i + 1); });
+      // Em pé (celular): a grande em cima no formato do vídeo e as outras empilhadas embaixo, menores
+      const grande = Math.round(Math.min(H * 0.6, W * 9 / 16)), pequena = Math.round((H - grande) / m);
+      grade.style.gridTemplateColumns = "1fr";
+      grade.style.gridTemplateRows = grande + "px repeat(" + m + ", minmax(0, " + Math.min(pequena, Math.round(W * 0.6 * 9 / 16)) + "px))";
+      destaque.el.style.gridRow = "1"; destaque.el.style.gridColumn = "1";
+      outras.forEach((t, i) => { t.el.style.gridRow = String(i + 2); t.el.style.gridColumn = "1"; });
     }
     document.getElementById("resumo").textContent = n + " telas · " + destaque.nome + " em destaque · clique nela de novo para voltar";
     document.title = "(" + n + ") Assistir · LinkStream";
