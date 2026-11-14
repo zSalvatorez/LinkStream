@@ -3,9 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<link rel="icon" href="marca.svg" type="image/svg+xml">
 <title>Assistir · LinkStream</title>
 <style>
-  :root { --fundo:#0b0b0e; --cartao:#17171d; --barra:rgba(14,14,18,.86); --texto:#f2f2f5; --fraco:#a5a7b4; --ativo:#7c5cff; --borda:rgba(255,255,255,.14); --vermelho:#e5484d; }
+  :root { --fundo:#0c0c0f; --cartao:#17171d; --barra:rgba(14,14,18,.86); --texto:#f2f2f5; --fraco:#a5a7b4; --ativo:#e1e1e8; --borda:rgba(255,255,255,.14); --vermelho:#e5484d; }
   * { box-sizing:border-box; }
   html, body { margin:0; height:100%; background:var(--fundo); color:var(--texto); font:14px/1.4 "Segoe UI", system-ui, sans-serif; overflow:hidden; }
   #topo { position:fixed; top:0; left:0; right:0; height:44px; display:flex; align-items:center; gap:10px; padding:0 12px; background:var(--barra); border-bottom:1px solid var(--borda); z-index:5; }
@@ -14,7 +16,6 @@
   #grade { position:fixed; top:44px; left:0; right:0; bottom:0; display:grid; gap:4px; padding:4px; }
   .tela { position:relative; background:#000; border-radius:8px; overflow:hidden; min-width:0; min-height:0; }
   .tela iframe { position:absolute; inset:0; width:100%; height:100%; border:0; background:#000; }
-  .tela .clique { position:absolute; inset:0; z-index:1; cursor:pointer; }
   .tela.destaque { outline:2px solid var(--ativo); outline-offset:-2px; }
   .tela .barra { position:absolute; left:8px; right:8px; top:8px; display:flex; align-items:center; gap:6px; padding:6px 8px; border-radius:10px;
                  background:var(--barra); border:1px solid var(--borda); opacity:0; transition:opacity .2s; z-index:2; }
@@ -34,7 +35,7 @@
 </style>
 </head>
 <body>
-<div id="topo"><b>LinkStream</b><span class="fraco" id="resumo">Abra o link de cada amigo: as telas aparecem aqui, lado a lado.</span><button id="add" title="Colar o link de um amigo">＋ Link</button></div>
+<div id="topo"><img src="marca.svg" width="24" height="24" alt=""><b>LinkStream</b><span class="fraco" id="resumo">Abra o link de cada amigo: as telas aparecem aqui, lado a lado.</span><button id="add" title="Colar o link de um amigo">＋ Link</button></div>
 <div id="grade"></div>
 <div id="vazio">
   <div>Abra o link que um amigo mandou, ou cole ele aqui:</div>
@@ -102,7 +103,7 @@ window.addEventListener("resize", organizar);
 if ("ResizeObserver" in window) new ResizeObserver(() => organizar()).observe(grade);
 
 function som(t) {
-  try { t.iframe.contentWindow.postMessage({ linkstream: 1, tipo: "som", volume: t.volume, mudo: t.mudo }, "*"); } catch (e) {}
+  try { t.iframe.contentWindow.postMessage({ linkstream: 1, tipo: "som", volume: t.volume, mudo: t.mudo }, new URL(t.url).origin); } catch (e) {}
   t.btnSom.textContent = t.mudo || t.volume == 0 ? "🔇" : t.volume < 50 ? "🔉" : "🔊";
   t.btnSom.classList.toggle("mudo", t.mudo || t.volume == 0);
 }
@@ -130,13 +131,12 @@ function adicionar(s) {
     if (document.fullscreenElement) document.exitFullscreen();
     else t.el.requestFullscreen().catch(() => {});
   });
-  const fora = botao("↗", "Abrir em outra aba (sai daqui)", () => { window.open(t.url, "_blank"); remover(t); });
+  const destacar = botao("▣", "Destacar esta tela", () => { destaque = destaque === t ? null : t; organizar(); });
+  const fora = botao("↗", "Abrir em outra aba (sai daqui)", () => { window.open(t.url, "_blank", "noopener,noreferrer"); remover(t); });
   const fechar = botao("✕", "Tirar esta tela", () => remover(t), "fechar");
-  barra.append(nome, t.estado, t.btnSom, vol, cheia, fora, fechar);
-  // O clique dentro do quadro iria para o player: uma camada por cima pega o clique e põe a tela em destaque
-  const clique = document.createElement("div"); clique.className = "clique"; clique.title = "Clique para destacar esta tela";
-  clique.onclick = () => { destaque = destaque === t ? null : t; organizar(); };
-  t.el.append(t.iframe, clique, barra);
+  barra.append(nome, t.estado, t.btnSom, vol, destacar, cheia, fora, fechar);
+  // O player precisa receber cliques e teclado para permitir entrar na conta.
+  t.el.append(t.iframe, barra);
   grade.appendChild(t.el);
   telas.push(t);
   guardar(); organizar();
@@ -147,7 +147,7 @@ function remover(t) { telas = telas.filter(x => x !== t); t.el.remove(); guardar
 // Estado que cada player manda (resolução, fps, avisos de conexão)
 window.addEventListener("message", e => {
   const d = e.data; if (!d || d.linkstream !== 1 || d.tipo !== "estado") return;
-  const t = telas.find(x => x.iframe.contentWindow === e.source); if (!t) return;
+  const t = telas.find(x => x.iframe.contentWindow === e.source); if (!t || e.origin !== new URL(t.url).origin) return;
   t.estado.textContent = d.aviso || d.info || "";
 });
 

@@ -14,40 +14,17 @@ Programa para quem joga no PC, tudo numa janela só:
 
 > Versão de teste. Se achar qualquer problema, avisa (veja "Como relatar um problema" lá embaixo).
 
-### Novidades desta versão
+### Novidades da versão 1.3
 
-- **Procurar atualizações** (⚙ Ajustes → Geral): a partir desta versão, o LinkStream mesmo procura, baixa e instala a
-  versão nova, e abre de novo sozinho. Seus ajustes, cenas e vídeos continuam.
+- **Identidade própria:** preto, branco e prata, novo logo e ícones. Online verde, Ausente amarelo e Não perturbe vermelho.
+- **Grupos e conversas:** grupos na lateral direita e chat no centro, com texto, links, histórico e reenvio. O criador ativa a conversa quando quiser; listas anteriores continuam privadas.
+- **Público da transmissão:** todos os amigos, pessoas escolhidas ou grupos. É preciso entrar na conta autorizada para assistir, inclusive no navegador.
+- **Conversas e Ao vivo:** ao assistir, a tela abre na aba Ao vivo; voltar ao chat mantém o player e o som.
+- **Janela redimensionável:** o tamanho inicial virou o mínimo; permite ampliar e maximizar. Os controles da gravação foram reorganizados para aproveitar a tela e caber no tamanho mínimo.
+- **Prévia mais nítida e fluida**, com contador do FPS real. A taxa depende do computador; a gravação mantém a qualidade configurada.
+- **Revisão do acesso às transmissões e do encerramento das conexões.** A conexão direta e o túnel de reserva continuam sendo usados.
 
-- **Várias telas na mesma aba**: cada link de amigo que você abre entra na mesma página, lado a lado (2, 3, 5 ou mais).
-  Cada tela tem som e volume próprios, tela cheia e "abrir em outra aba".
-- **Link mais leve**: sem jogo HDR (ou em monitor sem HDR), a conversão do link ficou cerca de 30% mais leve para a
-  placa de vídeo.
-
-- **Qualidade do link** em ⚙ Ajustes: **Full HD** (padrão), **Nativa** (a resolução do seu monitor, mais pesada) ou
-  **720p** (leve, para PC mais fraco). Em monitor ultrawide o link agora usa a tela inteira (ex.: 2580x1080 em vez de 1920x804).
-- **Link mais leve no jogo**: fica em no máximo 60 fps e cai sozinho para 30 se a placa não der conta.
-- **Câmera com posições** (botão 📷 Câmera): em webcam que se mexe, salve posições com nome. Cada uma guarda o ângulo, o zoom e a
-  imagem (brilho, exposição etc.), e dá para escolher a resolução e os quadros da câmera. Troque pela janela, por `Ctrl+Alt+P` ou por **Select + RB** no controle.
-  Tem **modo privacidade** (a câmera vira para baixo e sai do vídeo) e a câmera volta como estava quando você abre o
-  LinkStream de novo, mesmo depois de desligar o PC. Webcam comum, que não se mexe, aparece só com os ajustes de imagem.
-- **Ajustes mais organizados**: separados por categoria, em colunas, e a janela agora muda de tamanho (cabe em qualquer tela).
-- **Quadros por segundo**: agora só 30 ou 60. Quem usava 120 volta para 60 sozinho.
-- O ícone do OBS não aparece mais perto do relógio.
-- **Uma permissão só**: o instalador pede a permissão do Windows uma vez, logo ao abrir, e já libera tudo
-  (antes ainda vinham mais duas perguntas "Permitir acesso?" do firewall quando o link ligava).
-
-- **Nome novo:** a Central agora se chama **LinkStream**. Quem já tem a Central é só rodar o instalador novo: ele traz
-  os ajustes, as cenas e as chaves para o LinkStream e tira a Central antiga sozinho (os vídeos salvos ficam onde estavam).
-
-- **Live que não entrava no ar** ("Preparando a transmissão" para sempre): o LinkStream confere sozinho e, se a live não
-  entrar em ~1 minuto, **reabre** automaticamente (até 2 vezes). Também manda a **versão vertical** para os Shorts quando
-  a "Transmissão dupla" do YouTube pede (veja "Live no YouTube").
-- **Gravação**: começa exatamente quando você aperta (antes podia perder alguns segundos do começo) e **salva bem mais
-  rápido**. A qualidade padrão agora é 60 Mb/s: igual a olho nu e ~30% menor (~27 GB por hora em 4K).
-- **Jogando na TV com o monitor desligado**: a gravação, o replay e a live não saem mais com a imagem preta.
-- Clicar no ícone do LinkStream (barra de tarefas, menu Iniciar) com ele escondido **abre a janela**.
-- Depois da janelinha da live aberta pelo controle, o **jogo volta a ficar em foco** sozinho.
+Quem já tem instalado pode usar **Ajustes → Geral → Procurar atualizações**. O app baixa o instalador e abre novamente; ajustes, cenas e vídeos são preservados. Atualize também o app dos amigos. Grupos com conversa ativa dão acesso ao histórico anterior a quem entrar depois.
 
 ## Requisitos
 
